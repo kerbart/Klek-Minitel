@@ -1,4 +1,4 @@
-# AGENTS.md — déployer et modifier `miniteld`
+# AGENTS.md — déployer et modifier `minitia`
 
 Guide de travail sur ce dépôt, à destination d'un agent de code ou d'un humain
 pressé. Il dit **ce qui se passe si vous vous trompez**, parce que la plupart des
@@ -22,6 +22,14 @@ Deux moitiés indépendantes :
 Le pilote ne contient **aucune** logique métier et n'accède pas à Internet. Il
 appelle quatre routes HTTP. Tout ce que le Minitel affichera d'intelligent vient
 de votre backend.
+
+### Trois noms, ne les confondez pas
+
+| Nom | Ce que c'est |
+|---|---|
+| **minitia** | le projet et le dépôt (Minitel + IA) |
+| `minitel` | le crate de bibliothèque — le pilote réutilisable |
+| `miniteld` | le binaire du daemon, et le nom de l'unité systemd |
 
 ```
 ┌──────────┐  série 1200/4800 bd   ┌───────────────┐   HTTP/1.0    ┌──────────┐
@@ -48,6 +56,7 @@ src/
     demo.rs      10 écrans de démonstration des capacités Vidéotex
     show.rs      affiche un fichier .vtx, et rien d'autre
 docs/
+  journal-de-bord.md          les pannes réelles du projet et leur cause racine
   videotex-1b-cheatsheet.md   toutes les séquences hex (la référence à ouvrir)
   image-conversion.md         pipeline image → .vtx
 tools/
@@ -379,11 +388,27 @@ Disposition du mode conversation, telle que verrouillée par les tests :
 La rangée 0 est cadrée sur 37 colonnes avec l'heure calée à droite. Un libellé
 d'une autre largeur fait sauter l'heure. Un test le vérifie pour les 4 états.
 
-### Les majuscules accentuées et le clavier
+### Les majuscules accentuées ne s'affichent pas
 
-Le Minitel envoie les accents comme **diacritique puis lettre** ; `input.rs`
-recompose. Certaines combinaisons n'existent pas au clavier du terminal, quoi
+Le pilote **sait les encoder**, et le terminal ne s'en plaint pas — mais elles ne
+se voient pas. Un accent est un glyphe G2 superposé à la lettre par un OU binaire
+sur les rangées 1-2 de la cellule : sur une capitale, ces pixels sont **déjà
+allumés**, donc l'accent disparaît. `É` sort `E`. La cédille occupe les rangées
+8-9, restées libres : `Ç` fonctionne, lui.
+
+Conséquence pratique : n'écrivez pas de titre en majuscules accentuées en pensant
+qu'il sera correct. Écrivez `ELECTRICITE` en connaissance de cause, ou passez le
+mot en minuscules accentuées.
+
+Côté clavier, le Minitel envoie **diacritique puis lettre** ; `input.rs`
+recompose. Certaines combinaisons ne sont pas saisissables sur le terminal, quoi
 qu'on tape : ne construisez pas d'interface qui les exige.
+
+### Un caractère double largeur consomme deux colonnes
+
+Le flux ne doit **pas** contenir la case masquée : ajoutez un remplissage et tout
+ce qui suit se décale d'une colonne. La double hauteur, elle, écrit aussi sur la
+ligne **au-dessus** et écrase son contenu — prévoyez la ligne libre.
 
 ---
 
@@ -425,6 +450,10 @@ python3 tools/vtx-preview.py fichier.vtx                        # aperçu ASCII
 | `WEB KO` en permanence | le backend répond mais n'a pas Internet — vérifier de son côté |
 | Tout est lent, caractère par caractère | lien retombé à 1200 bauds : normal après une reconnexion |
 | Le déploiement disparaît au reboot | overlayfs actif sur le Pi |
+
+Chacune de ces lignes est une panne réellement vécue : les causes racines, les
+fausses pistes qui ont précédé et ce qu'il a fallu changer physiquement sont
+détaillés dans **[docs/journal-de-bord.md](docs/journal-de-bord.md)**.
 
 Le premier réflexe utile est toujours le même :
 

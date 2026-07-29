@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Backend de référence pour miniteld — le « cerveau » du Minitel.
+"""Backend de référence pour minitia — le « cerveau » du Minitel.
 
 Implémente les quatre routes attendues par le daemon (cf. AGENTS.md) en
 bibliothèque standard uniquement, sauf pour l'appel LLM qui utilise le SDK
@@ -178,5 +178,5 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     mode = "LLM" if _client else "echo (pas de ANTHROPIC_API_KEY)"
-    print(f"backend miniteld sur 0.0.0.0:{PORT} — mode {mode}", file=sys.stderr)
+    print(f"backend minitia sur 0.0.0.0:{PORT} — mode {mode}", file=sys.stderr)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()

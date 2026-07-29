@@ -8,7 +8,7 @@ readme = "README.md"
 keywords = ["minitel", "videotex", "serial", "retrocomputing", "teletext"]
 categories = ["hardware-support", "embedded"]
 # À compléter avant publication :
-# repository = "https://github.com/<OWNER>/miniteld"
+# repository = "https://github.com/<OWNER>/minitia"
 # authors = ["Votre Nom <vous@example.com>"]
 
 [lib]

@@ -1,4 +1,6 @@
-# miniteld
+# minitia
+
+*Minitel + IA.*
 
 **Faites d'un vrai Minitel l'interface d'un service moderne.** Pilote Rust pour
 terminaux Minitel 1B (série + Vidéotex), plus un daemon qui transforme le
@@ -64,7 +66,7 @@ facultatif) est fourni dans `examples/backend/`.
 ## Essayer sans matériel
 
 ```bash
-git clone <URL_DU_DEPOT> && cd miniteld
+git clone <URL_DU_DEPOT> && cd minitia
 cargo build --release
 
 # le backend de référence, en mode écho (aucune clé API nécessaire)
@@ -108,7 +110,7 @@ use minitel::{protocol, videotex};
 let mut link = Link::spawn(LinkConfig::default());   // reconnexion incluse
 link.send(protocol::clear_screen()).await?;
 link.send(protocol::move_to(1, 5)).await?;
-link.send(videotex::colored(Color::Cyan, "BONJOUR À TOI")).await?;
+link.send(videotex::colored(Color::Cyan, "bonjour à toi")).await?;
 
 while let Some(event) = link.recv().await {          // octets reçus, (re)connexions
     println!("{event:?}");
@@ -130,8 +132,13 @@ transforme en touches.
 | Fichier | Contenu |
 |---|---|
 | **[AGENTS.md](AGENTS.md)** | déploiement, configuration, contrat du backend, invariants, dépannage |
+| [docs/journal-de-bord.md](docs/journal-de-bord.md) | **les pannes réelles** : cause racine, fausse piste, résolution |
 | [docs/videotex-1b-cheatsheet.md](docs/videotex-1b-cheatsheet.md) | toutes les séquences hex du Minitel 1B (norme STUM) |
 | [docs/image-conversion.md](docs/image-conversion.md) | pipeline image → `.vtx`, modes de rendu, timings |
+
+Si vous montez le même bricolage, lisez le **journal de bord** avant de souder :
+sur onze pannes majeures, six étaient physiques ou électriques — l'alimentation
+et le câblage vous occuperont plus que le protocole.
 
 ## État du projet
 
