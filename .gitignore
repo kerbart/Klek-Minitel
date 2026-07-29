@@ -1,0 +1,14 @@
+/target
+
+# Configuration locale (chacun la sienne — voir services.example.json)
+/services.json
+/.env
+
+# Artefacts de conversion d'image
+*.vtx
+!examples/**/*.vtx
+
+# Divers
+*.bak
+*.bak-*
+__pycache__/

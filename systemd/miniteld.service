@@ -1,0 +1,48 @@
+# Gabarit d'unité systemd pour miniteld.
+#
+#   sudo cp systemd/miniteld.service /etc/systemd/system/
+#   sudo systemctl edit miniteld     # ou éditez les valeurs ci-dessous
+#   sudo systemctl enable --now miniteld
+#   journalctl -u miniteld -f
+#
+# Remplacez ce qui est en <CHEVRONS>. `deploy.sh` génère cette unité tout seul.
+
+[Unit]
+Description=miniteld — pilote Minitel (série + Vidéotex)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=<UTILISATEUR>
+WorkingDirectory=/home/<UTILISATEUR>/minitel-driver
+
+# Adresse du backend applicatif (voir AGENTS.md § Contrat du backend)
+Environment=MINITEL_BACKEND=<IP_BACKEND>:3009
+# Titre affiché en rangée d'en-tête
+Environment=MINITEL_TITLE=MINITEL
+# Menu de la touche Guide (facultatif) — chemin absolu recommandé
+Environment=MINITEL_SERVICES=/home/<UTILISATEUR>/minitel-driver/services.json
+# Bannière d'accueil facultative (fichier .vtx)
+#Environment=MINITEL_LOGO=/home/<UTILISATEUR>/minitel-driver/logo.vtx
+Environment=RUST_LOG=info
+# L'horloge de la rangée 0 suit ce fuseau
+Environment=TZ=Europe/Paris
+
+ExecStart=/home/<UTILISATEUR>/minitel-driver/miniteld /dev/serial/by-id/<VOTRE_ADAPTATEUR>
+
+# Le Minitel peut être éteint ou débranché : on retente sans fin, le pilote
+# gère lui-même la reconnexion et la renégociation de vitesse.
+Restart=always
+RestartSec=3
+
+# Durcissement raisonnable — le service n'a besoin que du port série et du
+# réseau. Retirez ces lignes si votre distribution est trop ancienne.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/<UTILISATEUR>/minitel-driver
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

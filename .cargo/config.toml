@@ -1,0 +1,24 @@
+# Cross-compilation vers ARM **sans toolchain C** ni Docker.
+#
+# Toutes les dépendances sont du Rust pur (serial2, tokio) : il n'y a aucun objet
+# C à lier, donc le linker interne de Rust (rust-lld) suffit. On cible musl en
+# statique pour que le binaire tourne tel quel sur n'importe quelle version de
+# Raspberry Pi OS / Debian, sans se soucier de la glibc ni de libudev.
+#
+# Installez la cible avant le premier build :
+#   rustup target add aarch64-unknown-linux-musl
+
+# Pi 2 / 3 en OS 32 bits (ARMv7)
+[target.armv7-unknown-linux-musleabihf]
+linker = "rust-lld"
+rustflags = ["-C", "linker-flavor=ld.lld", "-C", "target-feature=+crt-static"]
+
+# Pi 1 / Pi Zero W (BCM2835, ARMv6 — pas de VFPv3)
+[target.arm-unknown-linux-musleabihf]
+linker = "rust-lld"
+rustflags = ["-C", "linker-flavor=ld.lld", "-C", "target-feature=+crt-static"]
+
+# Pi 3 / 4 / 5 en OS 64 bits (aarch64)
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+rustflags = ["-C", "linker-flavor=ld.lld", "-C", "target-feature=+crt-static"]

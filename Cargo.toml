@@ -1,0 +1,49 @@
+[package]
+name = "minitel"
+version = "1.0.0"
+edition = "2021"
+description = "Pilote Rust pour vrais terminaux Minitel (série + Vidéotex) + daemon de conversation"
+license = "MIT"
+readme = "README.md"
+keywords = ["minitel", "videotex", "serial", "retrocomputing", "teletext"]
+categories = ["hardware-support", "embedded"]
+# À compléter avant publication :
+# repository = "https://github.com/<OWNER>/miniteld"
+# authors = ["Votre Nom <vous@example.com>"]
+
+[lib]
+name = "minitel"
+path = "src/lib.rs"
+
+# Daemon complet : conversation + menu de services + API de contrôle.
+[[bin]]
+name = "miniteld"
+path = "src/bin/miniteld.rs"
+
+# Banc d'essai : 10 écrans de démonstration des capacités Vidéotex.
+[[bin]]
+name = "minitel-demo"
+path = "src/bin/demo.rs"
+
+# Affiche un fichier .vtx et ne fait que ça.
+[[bin]]
+name = "minitel-show"
+path = "src/bin/show.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "signal", "io-util", "net"] }
+serial2-tokio = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2"
+
+# Cible un ARM lent (Pi Zero) : on optimise la **taille**, pas la vitesse — le
+# goulot est le lien série à 1200/4800 bauds, jamais le CPU.
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+panic = "abort"

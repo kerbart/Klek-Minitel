@@ -1,0 +1,6 @@
+[
+  { "key": "1", "name": "meteo",    "label": "Meteo du jour" },
+  { "key": "2", "name": "actus",    "label": "Titres de l'actualite" },
+  { "key": "3", "name": "transport", "label": "Prochains passages" },
+  { "key": "4", "name": "maison",   "label": "Capteurs de la maison" }
+]
