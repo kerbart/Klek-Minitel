@@ -7,9 +7,8 @@ license = "MIT"
 readme = "README.md"
 keywords = ["minitel", "videotex", "serial", "retrocomputing", "teletext"]
 categories = ["hardware-support", "embedded"]
-# À compléter avant publication :
-# repository = "https://github.com/<OWNER>/minitia"
-# authors = ["Votre Nom <vous@example.com>"]
+repository = "https://github.com/kerbart/Klek-Minitel"
+authors = ["Damien Kerbart <damien@kerbart.com>"]
 
 [lib]
 name = "minitel"
@@ -30,7 +29,19 @@ path = "src/bin/demo.rs"
 name = "minitel-show"
 path = "src/bin/show.rs"
 
+# Télécommande TUI pour le poste de travail : écrire sur l'écran du Minitel et
+# lui envoyer des images via l'API de contrôle du daemon. Derrière une feature
+# pour que le build croisé du Pi (deploy.sh) n'embarque jamais ratatui.
+[[bin]]
+name = "minitel-tui"
+path = "src/bin/tui.rs"
+required-features = ["tui"]
+
+[features]
+tui = ["dep:ratatui"]
+
 [dependencies]
+ratatui = { version = "0.29", optional = true }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "signal", "io-util", "net"] }
 serial2-tokio = "0.1"
 serde = { version = "1", features = ["derive"] }

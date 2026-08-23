@@ -1,4 +1,4 @@
-# AGENTS.md — déployer et modifier `minitia`
+# AGENTS.md — déployer et modifier Klek-Minitel
 
 Guide de travail sur ce dépôt, à destination d'un agent de code ou d'un humain
 pressé. Il dit **ce qui se passe si vous vous trompez**, parce que la plupart des
@@ -27,7 +27,7 @@ de votre backend.
 
 | Nom | Ce que c'est |
 |---|---|
-| **minitia** | le projet et le dépôt (Minitel + IA) |
+| **Klek-Minitel** | le projet et le dépôt |
 | `minitel` | le crate de bibliothèque — le pilote réutilisable |
 | `miniteld` | le binaire du daemon, et le nom de l'unité systemd |
 
@@ -55,13 +55,16 @@ src/
     miniteld.rs  LE daemon : accueil, conversation paginée, menu Guide, API ctrl
     demo.rs      10 écrans de démonstration des capacités Vidéotex
     show.rs      affiche un fichier .vtx, et rien d'autre
+    tui.rs       télécommande TUI du poste de travail (feature `tui`, jamais sur le Pi)
 docs/
+  install-raspberry-pi.md     le pas-à-pas Pi, du flash au premier écran
   journal-de-bord.md          les pannes réelles du projet et leur cause racine
   videotex-1b-cheatsheet.md   toutes les séquences hex (la référence à ouvrir)
   image-conversion.md         pipeline image → .vtx
 tools/
-  img2vtx.py     image → mosaïque G1 (adaptatif ou niveaux de gris)
-  vtx-preview.py rend un .vtx en ASCII dans le terminal (itérer sans matériel)
+  img2vtx.py        image → mosaïque G1 (adaptatif ou niveaux de gris)
+  vtx-preview.py    rend un .vtx en ASCII dans le terminal (itérer sans matériel)
+  minitel-status.sh état de santé complet : API, systemd, journal, alimentation
 examples/backend/backend.py   backend de référence, 4 routes, ~180 lignes
 systemd/miniteld.service      gabarit d'unité
 deploy.sh                     build statique + install du service à distance
@@ -333,6 +336,13 @@ curl --data-binary @image.vtx hote:3010/show          # afficher un .vtx
 `/text` prend du texte brut (pas du JSON) et le pagine comme une réponse
 normale ; `/show` prend des octets Vidéotex bruts et les envoie tels quels.
 
+La même API a une interface confortable : le TUI du poste de travail, qui
+enchaîne conversion d'image et envoi, et affiche l'état du lien en continu.
+
+```bash
+cargo run --release --features tui --bin minitel-tui -- hote:3010
+```
+
 🔓 **Aucune authentification, écoute sur `0.0.0.0`.** N'importe qui sur le réseau
 peut écrire sur l'écran. C'est acceptable sur un LAN de confiance, pas au-delà :
 si la machine est exposée, filtrez ce port au pare-feu. Ne l'ouvrez jamais sur
@@ -458,9 +468,20 @@ détaillés dans **[docs/journal-de-bord.md](docs/journal-de-bord.md)**.
 Le premier réflexe utile est toujours le même :
 
 ```bash
+./tools/minitel-status.sh pi@hote           # tout en un : API, systemd, journal, alim
+```
+
+ou à la main :
+
+```bash
 journalctl -u miniteld -n 50 --no-pager     # RUST_LOG=debug pour tracer les octets
 curl -s localhost:3010/status
 ```
+
+Sur Raspberry Pi, regardez aussi `vcgencmd get_throttled` (le script le fait) :
+tout code autre que `0x0` signale une sous-alimentation — la cause racine la plus
+fréquente des glitches série de ce montage, et la plus longue à trouver quand on
+la cherche dans le logiciel.
 
 ---
 
@@ -472,6 +493,9 @@ curl -s localhost:3010/status
 - Aucune dépendance HTTP (`reqwest`, `hyper`) : le client et le serveur sont
   écrits à la main pour garder le binaire statique petit. N'en ajoutez pas pour
   quatre routes en HTTP/1.0.
+- Les dépendances de confort du poste de travail (ratatui…) vivent **derrière la
+  feature `tui`** : rien de tout cela ne doit entrer dans le graphe du binaire
+  déployé sur le Pi. `deploy.sh` compile sans features, et ça doit rester vrai.
 - Le pilote ne doit **jamais** paniquer sur une entrée matérielle : un octet
   inattendu s'ignore, un lien coupé se reconnecte. `panic = "abort"` est actif,
   une panique tue le service.
