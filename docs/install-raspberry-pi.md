@@ -9,7 +9,7 @@ linéaire ; le pourquoi de chaque étape est dans [AGENTS.md](../AGENTS.md).
 - un Minitel 1B (brocante, Leboncoin — vérifiez que l'écran s'allume) ;
 - un Raspberry Pi, n'importe lequel (un Zero W suffit, le binaire pèse ~1 Mo) ;
 - un adaptateur **USB-UART TTL** type CH340 (quelques euros) ;
-- 3 fils Dupont et une prise **DIN 5 broches 270°** (ou 3 fils nus soigneux) ;
+- 3 fils Dupont et une prise **DIN 5 broches mâle** (ou 3 fils nus soigneux) ;
 - sur votre poste : Rust (`rustup`), `python3`, un accès SSH au Pi.
 
 ## 1. Préparer le Pi (une fois)
@@ -29,6 +29,11 @@ linéaire ; le pourquoi de chaque étape est dans [AGENTS.md](../AGENTS.md).
    déploiement s'évapore au reboot. `deploy.sh` le détecte et vous le rappellera.
 
 ## 2. Câbler (3 fils, pas 4)
+
+> 📘 Cette section est le raccourci. Si vous n'avez jamais câblé de connecteur,
+> lisez plutôt **[materiel-branchement.md](materiel-branchement.md)** (quoi
+> acheter, identifier les broches au multimètre, le premier contact) et, pour un
+> montage définitif, **[materiel-soudure.md](materiel-soudure.md)**.
 
 Prise DIN à l'arrière du Minitel, vue de l'extérieur :
 
@@ -53,8 +58,9 @@ jamais `/dev/ttyUSB0` (le numéro change au gré des rebranchements).
 ## 3. Lancer un backend
 
 Le daemon n'a aucune logique métier : il lui faut un backend HTTP (4 routes, le
-contrat est dans [AGENTS.md](../AGENTS.md#contrat-du-backend)). Pour commencer,
-le backend de référence en mode écho suffit — sur votre poste ou sur le Pi :
+contrat est dans [AGENTS.md](../AGENTS.md#contrat-du-backend), et le guide pas à
+pas dans [creer-un-module.md](creer-un-module.md)). Pour commencer, le backend de
+référence en mode écho suffit — sur votre poste ou sur le Pi :
 
 ```bash
 python3 examples/backend/backend.py &      # écoute sur :3009

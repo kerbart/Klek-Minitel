@@ -1,5 +1,7 @@
 # Klek-Minitel
 
+![Un Minitel 1B relié à un Raspberry Pi, piloté depuis un ordinateur moderne](docs/assets/banniere.jpg)
+
 *Un vrai Minitel comme interface de vos services modernes.*
 
 > 🚀 **Clonez ce repo et donnez son adresse à votre agent Claude Code.** AGENTS.md dit tout — le reste est pilotage entièrement automatable.
@@ -101,13 +103,23 @@ Trois approches, aucune ne demande de modifier ce dépôt :
 
 ## Documentation
 
-| Fichier | Pour qui |
-|---------|----------|
-| **[AGENTS.md](AGENTS.md)** | Les agents IA qui vont toucher au code — pièges, invariants, tests, conventions |
-| [docs/install-raspberry-pi.md](docs/install-raspberry-pi.md) | Vous : le pas-à-pas du flash de la carte au premier écran |
-| [docs/journal-de-bord.md](docs/journal-de-bord.md) | Vous : 11 pannes réelles du montage (cause racine, fausse piste, résolution) |
-| [docs/videotex-1b-cheatsheet.md](docs/videotex-1b-cheatsheet.md) | Les agents qui éditent du Vidéotex en Rust — toutes les séquences hex |
-| [docs/image-conversion.md](docs/image-conversion.md) | Guide du pipeline image → `.vtx` |
+### Pour vous, humain
+
+| Fichier | Contenu |
+|---------|---------|
+| 🔌 **[docs/materiel-branchement.md](docs/materiel-branchement.md)** | **Brancher** : quoi acheter, le brochage DIN, identifier les broches au multimètre, le premier contact, la panne d'alimentation que tout le monde fait |
+| 🔥 **[docs/materiel-soudure.md](docs/materiel-soudure.md)** | **Souder** : outillage, le piège du connecteur mâle (miroir !), le geste pas à pas, les 3 tests avant mise sous tension, rattraper un ratage |
+| 🧩 **[docs/creer-un-module.md](docs/creer-un-module.md)** | **Créer un module** : les 3 niveaux (entrée de menu → backend complet → app Rust), le contrat exact, écrire pour 40 colonnes |
+| [docs/install-raspberry-pi.md](docs/install-raspberry-pi.md) | Le pas-à-pas du flash de la carte au premier écran |
+| [docs/journal-de-bord.md](docs/journal-de-bord.md) | 11 pannes réelles du montage — cause racine, fausse piste, résolution. **Six sur onze étaient physiques.** |
+
+### Pour votre agent
+
+| Fichier | Contenu |
+|---------|---------|
+| **[AGENTS.md](AGENTS.md)** | Le point d'entrée — pièges, invariants d'affichage, tests, conventions |
+| [docs/videotex-1b-cheatsheet.md](docs/videotex-1b-cheatsheet.md) | Toutes les séquences hex du Minitel 1B (norme STUM) |
+| [docs/image-conversion.md](docs/image-conversion.md) | Le pipeline image → `.vtx`, modes de rendu, timings |
 
 ## État du projet
 

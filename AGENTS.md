@@ -57,6 +57,9 @@ src/
     show.rs      affiche un fichier .vtx, et rien d'autre
     tui.rs       télécommande TUI du poste de travail (feature `tui`, jamais sur le Pi)
 docs/
+  materiel-branchement.md     (humain) acheter, câbler, identifier les broches
+  materiel-soudure.md         (humain) souder le câble DIN, vérifier avant tension
+  creer-un-module.md          (humain) les 3 niveaux d'extension, contrat détaillé
   install-raspberry-pi.md     le pas-à-pas Pi, du flash au premier écran
   journal-de-bord.md          les pannes réelles du projet et leur cause racine
   videotex-1b-cheatsheet.md   toutes les séquences hex (la référence à ouvrir)
@@ -110,6 +113,12 @@ Minitel 1B** (vue de l'extérieur du terminal) :
 
 ⚠️ **La broche 5 délivre 8,5 V.** La relier à un adaptateur USB-UART en 3,3 V ou
 5 V, c'est le détruire, et potentiellement le port USB avec. Ne câblez que 1, 2, 3.
+
+> Si l'utilisateur en est au stade du câblage ou de la soudure, renvoyez-le vers
+> **[docs/materiel-branchement.md](docs/materiel-branchement.md)** et
+> **[docs/materiel-soudure.md](docs/materiel-soudure.md)** : ils contiennent la
+> procédure d'identification des broches au multimètre (le diagramme seul est
+> ambigu — sur une fiche mâle vue côté soudure, l'arrangement est en miroir).
 
 Les niveaux sont **TTL collecteur ouvert**. Un module CH340 se raccorde
 directement ; si le Minitel émet mais que rien n'arrive (broche 3 muette), un
