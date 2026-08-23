@@ -21,6 +21,39 @@ Vous tapez sur le clavier d'époque, votre backend HTTP répond sur l'écran cat
 
 Le pilote ne contient **aucune logique métier** et n'accède pas à Internet : il appelle quatre routes (`/health`, `/ask`, `/service`, `/reset`). Tout l'intelligence vient de votre backend, dans le langage que vous voulez.
 
+## Étape 0 — votre machine, votre agent
+
+Ce projet fonctionne depuis **Linux, macOS ou Windows** (via WSL2), et il est
+conçu pour que la partie logicielle soit **entièrement déléguée à un agent de
+code** : vous décrivez ce que vous avez, il compile, déploie et vérifie. Le
+fichier [AGENTS.md](AGENTS.md) — un [standard ouvert](https://agents.md) que
+tous ces outils lisent — lui donne les invariants matériels, les pièges, et
+les règles de compilation croisée.
+
+**→ [docs/demarrer-selon-votre-machine.md](docs/demarrer-selon-votre-machine.md)** :
+ce qu'il faut installer selon votre OS, quel parcours choisir selon ce que vous
+avez sous la main (rien / un Pi / juste un Minitel / une installation existante),
+et **les prompts de départ à copier-coller** pour chaque cas.
+
+Si vous n'avez encore jamais utilisé d'agent de code, c'est l'occasion — un
+projet matériel, borné, vérifiable à l'œil, est un excellent terrain
+d'apprentissage. Il vous faut l'un de ces harness (au choix, selon vos accès et
+vos goûts — le projet n'en exige aucun en particulier) :
+
+| Harness | Éditeur | Installation | Lien |
+|---|---|---|---|
+| **Claude Code** | Anthropic | `npm i -g @anthropic-ai/claude-code` | [claude.com/claude-code](https://claude.com/claude-code) |
+| **Codex CLI** | OpenAI | `npm i -g @openai/codex` | [github.com/openai/codex](https://github.com/openai/codex) |
+| **Gemini CLI** | Google | `npm i -g @google/gemini-cli` | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+| **pi** | Mario Zechner | `npm i -g @mariozechner/pi-coding-agent` | [github.com/earendil-works/pi](https://github.com/earendil-works/pi) |
+| **opencode** | SST | voir le site | [opencode.ai](https://opencode.ai) |
+| **Goose** | Block / Linux Foundation | voir le site | [github.com/block/goose](https://github.com/block/goose) |
+| **Aider** | communauté | `pip install aider-install` | [aider.chat](https://aider.chat) |
+| **Copilot CLI** | GitHub | `npm i -g @github/copilot` | [github.com/github/copilot-cli](https://github.com/github/copilot-cli) |
+
+L'écosystème évolue vite — annuaire tenu à jour :
+[awesome-cli-coding-agents](https://github.com/bradAGI/awesome-cli-coding-agents).
+
 ## Déployer : passer l'info minimaliste à un agent
 
 Vous avez un Raspberry Pi, un Minitel 1B, et ~1 h de libre. Voici le prompt pour Claude Code :
@@ -107,6 +140,7 @@ Trois approches, aucune ne demande de modifier ce dépôt :
 
 | Fichier | Contenu |
 |---------|---------|
+| 🖥️ **[docs/demarrer-selon-votre-machine.md](docs/demarrer-selon-votre-machine.md)** | **Démarrer** : Linux/macOS/Windows, quel parcours selon ce que vous avez, quel agent de code, les prompts de départ |
 | 🔌 **[docs/materiel-branchement.md](docs/materiel-branchement.md)** | **Brancher** : quoi acheter, le brochage DIN, identifier les broches au multimètre, le premier contact, la panne d'alimentation que tout le monde fait |
 | 🔥 **[docs/materiel-soudure.md](docs/materiel-soudure.md)** | **Souder** : outillage, le piège du connecteur mâle (miroir !), le geste pas à pas, les 3 tests avant mise sous tension, rattraper un ratage |
 | 🧩 **[docs/creer-un-module.md](docs/creer-un-module.md)** | **Créer un module** : les 3 niveaux (entrée de menu → backend complet → app Rust), le contrat exact, écrire pour 40 colonnes |

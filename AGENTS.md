@@ -57,6 +57,7 @@ src/
     show.rs      affiche un fichier .vtx, et rien d'autre
     tui.rs       télécommande TUI du poste de travail (feature `tui`, jamais sur le Pi)
 docs/
+  demarrer-selon-votre-machine.md  (humain) Linux/macOS/Windows, parcours, agents
   materiel-branchement.md     (humain) acheter, câbler, identifier les broches
   materiel-soudure.md         (humain) souder le câble DIN, vérifier avant tension
   creer-un-module.md          (humain) les 3 niveaux d'extension, contrat détaillé
@@ -286,6 +287,59 @@ Markdown ni un tableau. **Écrivez directement pour l'écran** :
 
 Le prompt système de `examples/backend/backend.py` encode déjà ces règles ;
 réutilisez-le si votre backend appelle un LLM.
+
+---
+
+## Compiler selon l'OS du poste de travail
+
+L'utilisateur peut être sous Linux, macOS ou Windows. **Identifiez l'OS avant de
+proposer des commandes** (`uname -s`, ou l'échec de `uname` qui signe un Windows
+natif). Le guide humain correspondant est
+[docs/demarrer-selon-votre-machine.md](docs/demarrer-selon-votre-machine.md).
+
+### La règle qui prime sur vos réflexes : AUCUNE toolchain C
+
+La cross-compilation vers le Pi fonctionne **depuis les trois OS** avec rustup
+seul. Toutes les dépendances sont du Rust pur ; le lien se fait par **rust-lld**,
+déjà configuré dans `.cargo/config.toml`. Le seul prérequis est la cible :
+
+```bash
+rustup target add aarch64-unknown-linux-musl   # deploy.sh le fait déjà
+```
+
+**N'installez donc jamais** — même si une erreur de build semble le suggérer,
+même si c'est votre réflexe habituel pour du cross ARM :
+
+- ❌ `cross`, Docker ou Podman ;
+- ❌ `gcc-arm-linux-gnueabihf`, `musl-gcc`, `musl-cross` (brew) ou toute
+  toolchain C croisée ;
+- ❌ un sysroot, un `CC=`, un `linker =` supplémentaire dans la config cargo.
+
+Si l'édition de liens échoue, la cause est **ailleurs** (cible rustup absente,
+feature qui tire une dépendance C, PATH sans `~/.cargo/bin`). Installer une
+toolchain « pour voir » ne répare rien et casse la promesse du dépôt (build
+reproductible sans rien d'autre que rustup).
+
+### Choisir la cible : interroger le Pi, pas deviner
+
+```bash
+ssh pi@<ip> uname -m
+# aarch64 → aarch64-unknown-linux-musl (défaut de deploy.sh)
+# armv7l  → armv7-unknown-linux-musleabihf
+# armv6l  → arm-unknown-linux-musleabihf (Pi 1 / Zero W)
+```
+
+### Spécificités par OS
+
+| | À savoir |
+|---|---|
+| **Linux** | Tout natif. Port série local : `/dev/serial/by-id/…`, groupe `dialout`. |
+| **macOS** | Compile, cross-compile et TUI fonctionnent tels quels. Port série local : `/dev/tty.usbserial-*` (pas de `by-id`, pas de groupe à régler). |
+| **Windows** | `deploy.sh` et `minitel-status.sh` sont du **bash** : passez par **WSL2** et traitez le poste comme un Linux. En natif : rustup exige les MSVC Build Tools ; le TUI fonctionne mais `/img` a besoin de `python3` dans le PATH ; le daemon sur port COM n'est **pas testé**. USB vers WSL : `usbipd-win`. |
+
+Sous WSL, ne mélangez pas les mondes : clonez et compilez **dans** le système de
+fichiers Linux (`~/`), pas sous `/mnt/c/` (I/O dix fois plus lents, et les
+permissions exécutables se perdent).
 
 ---
 
