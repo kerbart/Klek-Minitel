@@ -1,7 +1,5 @@
 # Klek-Minitel
 
-![Un Minitel 1B relié à un Raspberry Pi, piloté depuis un ordinateur moderne](docs/assets/banniere.jpg)
-
 *Un vrai Minitel comme interface de vos services modernes.*
 
 > 🚀 **Clonez ce repo et donnez son adresse à votre agent Claude Code.** AGENTS.md dit tout — le reste est pilotage entièrement automatable.
