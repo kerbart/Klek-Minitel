@@ -1,6 +1,6 @@
 # Klek-Minitel
 
-![Minitel 1B et Raspberry Pi — le montage réel](docs/assets/banniere.jpg)
+![Un Minitel 1B en fonctionnement, un Raspberry Pi posé sur le capot, relié par un câble série](docs/assets/banniere.jpg)
 
 *Un vrai Minitel comme interface de vos services modernes.*
 
