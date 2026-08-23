@@ -2,58 +2,11 @@
 
 *Un vrai Minitel comme interface de vos services modernes.*
 
-**Faites d'un vrai Minitel l'interface d'un service moderne.** Pilote Rust pour
-terminaux Minitel 1B (série + Vidéotex), plus un daemon qui transforme le
-terminal en client de conversation paginé : vous tapez une question sur le
-clavier d'époque, un backend que vous écrivez répond sur l'écran cathodique.
+> 🚀 **Clonez ce repo et donnez son adresse à votre agent Claude Code.** AGENTS.md dit tout — le reste est pilotage entièrement automatable.
 
-```
-     ┌──────────────────────────────────────┐
-     │ MON SERVICE           p1/2           │
-     │                                      │
-     │ > combien de lunes a jupiter ?       │
-     │ JUPITER : 95 LUNES CONFIRMEES        │
-     │                                      │
-     │ Les quatre principales (Io, Europe,  │
-     │ Ganymede, Callisto) ont ete vues     │
-     │ par Galilee en 1610.                 │
-     │                                      │
-     │ VOUS :                               │
-     │ ......................................│
-     │                                      │
-     │ ENVOI  SUITE/RETOUR=page  SOMMAIRE=raz│
-     └──────────────────────────────────────┘
-```
+## 3 secondes pour comprendre
 
-Testé sur matériel : Minitel 1B relié à un Raspberry Pi par un adaptateur
-USB-UART à quelques euros. Le binaire pèse ~1 Mo, est lié statiquement et tourne
-jusque sur un Pi Zero W.
-
-## Ce que vous obtenez
-
-- **Un lien série qui ne lâche pas.** Le 1B n'a pas d'EEPROM et redémarre à 1200
-  bauds : le pilote renégocie 4800 tout seul, à chaque connexion, et se
-  reconnecte si vous éteignez le terminal.
-- **Le protocole Vidéotex fait proprement.** Accents (G2), mosaïque
-  semi-graphique (G1), couleurs, tailles doubles, rangée 0 de service,
-  compression `REP`, césure à 40 colonnes — avec les pièges documentés.
-- **Un clavier décodé.** Touches de fonction (Envoi, Sommaire, Suite, Retour,
-  Guide, Correction, Annulation), flèches, accents composés, accusés PRO.
-- **Un éditeur de saisie** multi-lignes projeté sur la grille de l'écran.
-- **Des images.** Convertisseur image → mosaïque G1 (quantification adaptative
-  ou niveaux de gris) et prévisualisation ASCII pour itérer sans matériel.
-- **Un daemon prêt à l'emploi** : accueil, conversation paginée, menu de services
-  sur la touche Guide, mise en veille du terminal, API de contrôle réseau.
-- **Une télécommande TUI** pour écrire sur l'écran cathodique et y pousser des
-  images depuis votre poste de travail, sans toucher au clavier d'époque.
-- **De quoi opérer** : déploiement SSH en une commande, unité systemd, script
-  d'état de santé, journal des pannes réelles.
-
-## Deux moitiés
-
-Ce dépôt est **la moitié pilote**. Il ne contient aucune logique métier et
-n'accède pas à Internet : il appelle quatre routes HTTP sur un backend que vous
-écrivez, dans le langage que vous voulez.
+Un **vrai Minitel 1B** (achat brocante, ~30 €) devient l'interface de votre service.
 
 ```
 ┌──────────┐  série 1200/4800 bd  ┌──────────────┐   HTTP/1.0   ┌──────────┐
@@ -62,73 +15,41 @@ n'accède pas à Internet : il appelle quatre routes HTTP sur un backend que vou
 └──────────┘                      └──────────────┘              └──────────┘
 ```
 
-Le contrat tient en quatre routes JSON — `/health`, `/ask`, `/service`, `/reset`
-— et une seule exigence de fond : **le texte renvoyé doit tenir en 40 colonnes**.
-Un backend de référence complet (~180 lignes, bibliothèque standard, LLM
-facultatif) est fourni dans `examples/backend/`.
+Vous tapez sur le clavier d'époque, votre backend HTTP répond sur l'écran cathodique. Voilà. Pas de magie — juste du Rust solide, du Vidéotex correct, et un daemon découplé.
 
-## Brancher vos modules
+Le pilote ne contient **aucune logique métier** et n'accède pas à Internet : il appelle quatre routes (`/health`, `/ask`, `/service`, `/reset`). Tout l'intelligence vient de votre backend, dans le langage que vous voulez.
 
-Trois points d'extension, du plus simple au plus profond — aucun ne demande de
-toucher au pilote :
+## Déployer : passer l'info minimaliste à un agent
 
-1. **Une entrée au menu Guide** (`services.json`) : une touche, un nom, un
-   libellé. Le daemon appelle `GET /service?name=…` sur votre backend, qui
-   renvoie le texte à afficher. Une météo, un flux RSS, l'état de vos serveurs :
-   c'est dix lignes dans votre backend, zéro ligne de Rust.
-2. **Un backend entier** : réimplémentez les quatre routes dans le langage de
-   votre choix et le Minitel devient l'interface de ce que vous voulez — un LLM,
-   une domotique, un jeu. Partez de `examples/backend/backend.py`.
-3. **Une autre application Minitel** : le crate `minitel` (lien série, protocole,
-   encodage Vidéotex, clavier, éditeur) est indépendant du daemon. Importez-le et
-   écrivez la vôtre — voir « Utiliser la bibliothèque seule » ci-dessous.
+Vous avez un Raspberry Pi, un Minitel 1B, et ~1 h de libre. Voici le prompt pour Claude Code :
 
-Et de l'extérieur, l'**API de contrôle** (`POST /text`, `POST /show`) permet à
-n'importe quel script du LAN de pousser du contenu à l'écran : notifications,
-tableaux de bord, dessins.
+```
+Je veux deployer Klek-Minitel sur mon Pi. Voici ce que j'ai :
 
-## Essayer sans matériel
+- Raspberry Pi : 192.168.1.42 (utilisateur "pi", j'ai la clé SSH)
+- Minitel branche sur le port : /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
+  (tu peux y aller direct, ou faire un ls /dev/serial/by-id/ si tu n'es pas sur)
+- Mon backend : 192.168.1.10:3009 (j'ai les identifiants)
+- Titre sur l'ecran : "MON SERVICE"
 
-```bash
-git clone https://github.com/kerbart/Klek-Minitel && cd Klek-Minitel
-cargo build --release
+Je veux que ca fonctionne en 10 min. AGENTS.md a tout ce qu'il faut.
 
-# le backend de référence, en mode écho (aucune clé API nécessaire)
-python3 examples/backend/backend.py &
-
-# le daemon, sur un faux device
-MINITEL_BACKEND=127.0.0.1:3009 RUST_LOG=info ./target/release/miniteld /dev/null
-
-# dans un autre terminal
-curl -s localhost:3010/status
+[Tu peux aussi mentionner : "Je n'ai pas de backend pour l'instant, lance juste
+le backend de reference en mode écho"]
 ```
 
-Un `état réseau from=Unknown to=Online` dans les logs : la chaîne logicielle est
-bonne. Il ne reste qu'à câbler.
+L'agent :
+1. Lit AGENTS.md (1 min) → comprend le contrat du backend, l'architecture, les pièges matériels
+2. Lance `deploy.sh` avec tes paramètres (2 min) → compile, déploie, vérifie
+3. Vous affiche l'écran d'accueil qui s'allume ✅
 
-## Installer pour de vrai
+C'est conçu **pour être piloté par un agent** — AGENTS.md est le manuel des invariants et des pièges que le compilateur ne peut pas vérifier. Lisez-le avant d'éditer le pilote.
 
-Trois fils entre l'adaptateur USB-UART et la prise DIN du Minitel (**ne touchez
-pas à la broche 5, elle sort 8,5 V**), puis :
+## Piloter depuis votre poste : TUI ou API brute
 
-```bash
-HOST=pi@192.168.1.42 BACKEND=192.168.1.10:3009 TITLE="MON SERVICE" ./deploy.sh
-```
+Une fois déployé, vous avez deux voies :
 
-`deploy.sh` compile un binaire statique pour l'ARM visé, l'installe sur la
-machine distante et écrit l'unité systemd. Ni Docker ni toolchain C requis.
-
-Le pas-à-pas complet (flash du Pi, câblage, premier déploiement, vérifications)
-tient dans **[docs/install-raspberry-pi.md](docs/install-raspberry-pi.md)**. Le
-brochage exact, le choix de la cible ARM, la configuration et le contrat du
-backend sont détaillés dans **[AGENTS.md](AGENTS.md)**.
-
-## Piloter depuis votre poste : le TUI
-
-Une fois le daemon en place, `minitel-tui` transforme votre terminal en
-télécommande de l'écran cathodique — tapez du texte, il s'affiche paginé sur le
-Minitel ; donnez une image, elle est convertie en mosaïque et affichée :
-
+**TUI du poste** (interface confortable) :
 ```bash
 cargo run --release --features tui --bin minitel-tui -- 192.168.1.42:3010
 
@@ -138,83 +59,64 @@ cargo run --release --features tui --bin minitel-tui -- 192.168.1.42:3010
 #   /vtx logo.vtx              →  flux Vidéotex brut
 ```
 
-La barre d'état montre en continu le lien série (connecté, bauds, veille) et la
-santé du backend. Le TUI est derrière la feature `tui` : le binaire déployé sur
-le Pi ne l'embarque jamais.
+**API brute** (si vous avez un script qui parle HTTP) :
+```bash
+curl -d "COUCOU DEPUIS L'API" 192.168.1.42:3010/text
+curl --data-binary @image.vtx 192.168.1.42:3010/show
+curl -s 192.168.1.42:3010/status   # lien, bauds, veille, backend
+```
 
 ## Surveiller
 
 ```bash
-./tools/minitel-status.sh pi@192.168.1.42   # API + service systemd + journal + alim
-curl -s 192.168.1.42:3010/status            # juste l'état, en JSON
+./tools/minitel-status.sh pi@192.168.1.42
 ```
 
-Le script vérifie aussi `vcgencmd get_throttled` : sur ce montage, la
-sous-alimentation du Pi est la première cause de glitches série — avant tout
-soupçon logiciel.
+Affiche : l'API (connexion, bauds, veille, backend), le service systemd (restarts), le journal des 15 dernières lignes, et **l'état d'alimentation du Pi** (`vcgencmd get_throttled`) — c'est la cause racine la plus souvent cherchée au mauvais endroit.
 
-## Utiliser la bibliothèque seule
+## Votre premier backend : 2 min
 
-Le daemon n'est qu'un exemple. Pour écrire une autre application Minitel :
+Copier-coller le backend de référence et modifiez la fonction `respond()` :
 
-```rust
-use minitel::constants::Color;
-use minitel::link::{Link, LinkConfig};
-use minitel::{protocol, videotex};
-
-# async fn demo() -> Result<(), Box<dyn std::error::Error>> {
-let mut link = Link::spawn(LinkConfig::default());   // reconnexion incluse
-link.send(protocol::clear_screen()).await?;
-link.send(protocol::move_to(1, 5)).await?;
-link.send(videotex::colored(Color::Cyan, "bonjour à toi")).await?;
-
-while let Some(event) = link.recv().await {          // octets reçus, (re)connexions
-    println!("{event:?}");
-}
-# Ok(())
-# }
+```python
+def respond(question: str, cont: int) -> str:
+    # Votre logique : LLM, requête, calcul, ce que vous voulez
+    answer = f"Vous avez écrit : {question}"
+    return answer   # 40 colonnes max
 ```
 
-`Link::spawn` rend la main immédiatement : ouverture du port, négociation de
-vitesse et reconnexions se font en tâche de fond. `recv()` livre les `LinkEvent`
-— octets du clavier, connexion établie, lien perdu — qu'un `input::Decoder`
-transforme en touches.
+Lancez `python3 examples/backend/backend.py`, l'agent déploie avec `BACKEND=votre_ip:3009`, c'est fait.
 
-`link` (série) · `protocol` (séquences) · `videotex` (encodage) · `input`
-(clavier) · `edit` (saisie) sont indépendants du daemon et de tout backend.
+## Écrire du Rust pour le pilote
+
+L'agent peut aussi vous aider là — il a AGENTS.md pour les invariants (40 colonnes, positionnement G1, double hauteur interdite en ligne 1…) et les 37 tests qui les verrouillent. Tout est itérable sans matériel : `cargo test`, `minitel-demo`, `vtx-preview.py`.
+
+## Brancher vos modules
+
+Trois approches, aucune ne demande de modifier ce dépôt :
+
+1. **Menu rapide** : éditez `services.json`, une touche = une requête HTTP. Une météo, un flux RSS, l'état de vos serveurs.
+2. **Backend personnalisé** : 4 routes HTTP, c'est tout — réimplémentez dans votre langage.
+3. **Autre app Minitel** : le crate `minitel` (lien série, protocole, clavier, éditeur) est réutilisable seul.
 
 ## Documentation
 
-| Fichier | Contenu |
-|---|---|
-| **[AGENTS.md](AGENTS.md)** | déploiement, configuration, contrat du backend, invariants, dépannage |
-| [docs/install-raspberry-pi.md](docs/install-raspberry-pi.md) | le pas-à-pas Raspberry Pi, du flash de la carte SD au premier écran |
-| [docs/journal-de-bord.md](docs/journal-de-bord.md) | **les pannes réelles** : cause racine, fausse piste, résolution |
-| [docs/videotex-1b-cheatsheet.md](docs/videotex-1b-cheatsheet.md) | toutes les séquences hex du Minitel 1B (norme STUM) |
-| [docs/image-conversion.md](docs/image-conversion.md) | pipeline image → `.vtx`, modes de rendu, timings |
-
-Ce dépôt est écrit pour être travaillé **avec un agent de code** (Claude Code,
-Codex, ou autre) : donnez-lui [AGENTS.md](AGENTS.md) comme point d'entrée, il y
-trouvera les invariants matériels que le compilateur ne peut pas vérifier — et
-les tests qui les verrouillent. Tout se vérifie sans Minitel branché
-(`cargo test`, `vtx-preview.py`, mode `/dev/null`).
-
-Si vous montez le même bricolage, lisez le **journal de bord** avant de souder :
-sur onze pannes majeures, six étaient physiques ou électriques — l'alimentation
-et le câblage vous occuperont plus que le protocole.
+| Fichier | Pour qui |
+|---------|----------|
+| **[AGENTS.md](AGENTS.md)** | Les agents IA qui vont toucher au code — pièges, invariants, tests, conventions |
+| [docs/install-raspberry-pi.md](docs/install-raspberry-pi.md) | Vous : le pas-à-pas du flash de la carte au premier écran |
+| [docs/journal-de-bord.md](docs/journal-de-bord.md) | Vous : 11 pannes réelles du montage (cause racine, fausse piste, résolution) |
+| [docs/videotex-1b-cheatsheet.md](docs/videotex-1b-cheatsheet.md) | Les agents qui éditent du Vidéotex en Rust — toutes les séquences hex |
+| [docs/image-conversion.md](docs/image-conversion.md) | Guide du pipeline image → `.vtx` |
 
 ## État du projet
 
-Fonctionnel et utilisé au quotidien sur un Minitel 1B. 37 tests couvrent les
-invariants d'affichage et de protocole, sans matériel requis (`cargo test`).
+✅ Fonctionnel et utilisé au quotidien. 37 tests couvrent les invariants d'affichage et de protocole, sans matériel (`cargo test`). Tout s'itère avant de câbler.
 
-Le pilote cible le **Minitel 1B via la prise péri-informatique**. Les autres
-modèles partagent l'essentiel du protocole mais n'ont pas été testés — les
-retours (et les correctifs) sont bienvenus.
+Le pilote cible le **Minitel 1B via la prise péri-informatique**. Les autres modèles partagent l'essentiel du protocole mais n'ont pas été testés — retours bienvenus.
 
 ## Licence
 
 MIT — voir [LICENSE](LICENSE).
 
-Les constantes de protocole s'inscrivent dans la lignée des implémentations
-Python du Minitel (PyMinitel et dérivés), revérifiées sur matériel.
+Les constantes de protocole s'inscrivent dans la lignée des implémentations Python du Minitel (PyMinitel et dérivés), revérifiées sur matériel. Merci à eux.
